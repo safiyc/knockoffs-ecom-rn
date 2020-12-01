@@ -1,24 +1,39 @@
 // presentational component; no logic, any data passed from other components
 // works with productoverviewscreen
 import React from 'react';
-import { View, Text, Image, Button, StyleSheet } from 'react-native';
+import { View, Text, Image, Button, StyleSheet, TouchableOpacity, TouchableNativeFeedback, Platform } from 'react-native';
 
 import Colors from '../../constants/Colors';
 
 const ProductItem = props => {
+  // TouchableOpacity is button wrapper
+  let TouchableComponent = TouchableOpacity;
+
+  // to get ripple effect on android when pressed
+  if (Platform.OS === 'android' && Platform.Version >= 21) {
+    TouchableComponent = TouchableNativeFeedback;
+  }
+
   return (
     <View style={styles.product}>
-      <View style={styles.imageContainer}>
-        <Image style={styles.image} source={{ uri: props.image }} />
-      </View>
-      <View style={styles.details}>
-        <Text style={styles.title}>{props.title}</Text>
-        <Text style={styles.price}>${props.price.toFixed(2)}</Text>
-      </View>
-      <View style={styles.actions}>
-        {/* color prop is a rn button prop */}
-        <Button color={Colors.primary} title='View Details' onPress={props.onViewDetail} />
-        <Button color={Colors.primary} title='To Cart' onPress={props.onAddToCart} />
+      <View style={styles.touchable}>
+        {/* useForeground (when is a touchablenativefeedback) makes effect in foreground (i.e. not behind image) */}
+        <TouchableComponent onPress={props.onViewDetail} useForeground>
+          <View>
+            <View style={styles.imageContainer}>
+              <Image style={styles.image} source={{ uri: props.image }} />
+            </View>
+            <View style={styles.details}>
+              <Text style={styles.title}>{props.title}</Text>
+              <Text style={styles.price}>${props.price.toFixed(2)}</Text>
+            </View>
+            <View style={styles.actions}>
+              {/* color prop is a rn button prop */}
+              <Button color={Colors.primary} title='View Details' onPress={props.onViewDetail} />
+              <Button color={Colors.primary} title='To Cart' onPress={props.onAddToCart} />
+            </View>
+          </View>
+        </TouchableComponent>
       </View>
     </View>
   )
@@ -35,7 +50,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: 'white',
     height: 300,
-    margin: 20
+    margin: 20,
+  },
+  touchable: {
+    borderRadius: 10,
+    // hide ripple effect outside of product container
+    overflow: 'hidden'
   },
   imageContainer: {
     width: '100%',
